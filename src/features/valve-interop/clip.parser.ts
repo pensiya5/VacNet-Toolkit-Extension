@@ -2,6 +2,7 @@ import { getMessage } from '../../shared/services/i18n.service';
 import { extractVideoId, type ClipData, type ClipRange } from '../../entities/clip.entity';
 import type { WebmMetadata } from '../../shared/ports/protocol.port';
 import { getAllowedValvePageUrl, getAllowedValveSubmitUrl, getAllowedWebmUrl } from '../../shared/utils/url.utils';
+import { isNativeReviewPage } from './review-mode.utils';
 
 type WebmMetadataReader = (url: string) => Promise<WebmMetadata | null>;
 
@@ -43,12 +44,13 @@ const readTaskId = (root: Document): string => {
 const createTiming = (start: number, end: number, eventTime: number): ClipTiming | null => {
   if (!Number.isFinite(start) || start < 0) return null;
   if (!Number.isFinite(end) || end <= start) return null;
-  if (!Number.isFinite(eventTime) || eventTime < 0) return null;
+  if (!Number.isFinite(eventTime) || (eventTime < 0 && eventTime !== -1)) return null;
 
   return { range: { start, end }, eventTime };
 };
 
 const parseNumericValue = (expression: string, baseStart: number): number | null => {
+  if (!expression.trim()) return null;
   const numeric = Number(expression);
   if (Number.isFinite(numeric)) return numeric;
   const offset = expression.match(/^startTime\s*([+-])\s*(\d+(?:\.\d+)?)$/u);
@@ -127,6 +129,8 @@ export const readValveClip = async (
   const sourceWebmUrl = getAllowedWebmUrl(new URL(source, allowedBaseUrl).href)?.href;
   if (!sourceWebmUrl) throw new Error(getMessage("errValveDisallowedVideoUrl", source));
   const timing = readTiming(root);
+  const reviewType = isNativeReviewPage(root) ? 'cheating' : 'legacy';
+  if (timing.eventTime < 0 && reviewType === 'legacy') throw new Error(getMessage('errValveNoTiming'));
   const metadata = await readWebmMetadata(sourceWebmUrl);
 
   return {
@@ -135,6 +139,7 @@ export const readValveClip = async (
     videoId: extractVideoId(sourceWebmUrl),
     range: timing.range,
     eventTime: timing.eventTime,
+    reviewType,
     clipCount: root.querySelector('.ClipCount')?.textContent.match(/\d+/u)?.[0] ?? null,
     app: readApp(root),
     matchTimestamp: metadata?.matchTimestamp ?? null,

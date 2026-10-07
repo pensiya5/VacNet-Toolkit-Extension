@@ -16,9 +16,10 @@ interface ClipCoordinatorOptions {
 export class ClipCoordinator {
   constructor(private readonly options: ClipCoordinatorOptions) {}
 
-  async initialize(signal: AbortSignal): Promise<ClipData> {
+  async initialize(signal: AbortSignal, readMetadata = true): Promise<ClipData> {
     await waitForValvePageReady(document, signal);
-    const clip = await readValveClip(document, location.href, (url) => this.options.bus.readWebmMetadata({ url }));
+    const clip = await readValveClip(document, location.href, (url) => readMetadata
+      ? this.options.bus.readWebmMetadata({ url }) : Promise.resolve(null));
     storeInitialValveClip(clip);
     return clip;
   }
@@ -35,6 +36,7 @@ export class ClipCoordinator {
         wallhack: lookup.entry.wallhack,
         autobhop: lookup.entry.autobhop,
         bot: lookup.entry.bot,
+        ...(lookup.entry.cheating ? { cheating: lookup.entry.cheating } : {}),
       } : null;
       setState({ status: lookup.status, previous, identity });
       this.options.onStateChanged();

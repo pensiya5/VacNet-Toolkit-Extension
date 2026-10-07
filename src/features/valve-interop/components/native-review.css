@@ -1,0 +1,69 @@
+body.vacnet-native-review {
+  height: auto;
+  min-height: 100vh;
+  overflow: auto;
+}
+
+body.vacnet-native-review .page-container {
+  height: auto;
+  min-height: 100vh;
+  container-type: normal;
+}
+
+body.vacnet-native-review .review-layout {
+  width: 100%;
+  max-width: 1800px;
+  margin: auto;
+  padding: 24px;
+  gap: 20px;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 600px);
+  grid-template-rows: auto;
+  align-items: start;
+}
+
+body.vacnet-native-review .videocontainer {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+body.vacnet-native-review .verdict-column {
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+  background: transparent;
+}
+
+body.vacnet-native-review .task-instructions,
+body.vacnet-native-review .task-guidelines,
+body.vacnet-native-review .task-title {
+  display: none;
+}
+
+/* The native button's arming animation must run to enable confirmation.
+   Keep its rendering box while presenting the extension's visible controls. */
+body.vacnet-native-review #submitbuttons {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 900px) {
+  body.vacnet-native-review .review-layout {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+  body.vacnet-native-review .verdict-column {
+    width: 100% !important;
+    flex-basis: auto !important;
+  }
+}

@@ -17,6 +17,7 @@ export class RuntimeState {
   getPreferences(): Preferences { return { ...this.preferences }; }
   getClip(): ClipData | null { return this.clip ? { ...this.clip, range: { ...this.clip.range } } : null; }
   getVerdicts(): VerdictSelection { return { ...this.verdicts }; }
+  getPreviousVerdicts(): VerdictSelection | null { return this.previousVerdicts ? { ...this.previousVerdicts } : null; }
 
   setCatalog(catalog: MessageCatalog): void { this.catalog = catalog; }
   setPreferences(preferences: Preferences): void { this.preferences = { ...preferences }; }
@@ -26,6 +27,9 @@ export class RuntimeState {
   }
   setSubmitting(submitting: boolean): void { this.submitting = submitting; }
   setError(error: string | null): void { this.error = error; }
+  updateClipMetadata(metadata: Pick<ClipData, 'matchTimestamp' | 'webmDuration'>): void {
+    if (this.clip) this.clip = { ...this.clip, ...metadata };
+  }
   setVerdicts(verdicts: VerdictSelection): void { this.verdicts = { ...verdicts }; }
   updateVerdict(name: keyof VerdictSelection, value: VerdictSelection[keyof VerdictSelection]): void {
     this.verdicts = { ...this.verdicts, [name]: value };
@@ -48,6 +52,7 @@ export class RuntimeState {
       hasVideo: player.hasVideo(),
       submitting: this.submitting,
       error: this.error,
+      reviewControls: null,
     };
   }
 }

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MartinDawgor/VacNet-Toolkit-Extension/releases"><img alt="Version 3.0.0" src="https://img.shields.io/badge/version-3.0.0-5d8d22?style=flat-square"></a>
+  <a href="https://github.com/MartinDawgor/VacNet-Toolkit-Extension/releases"><img alt="Version 3.0.2" src="https://img.shields.io/badge/version-3.0.2-5d8d22?style=flat-square"></a>
   <a href="https://github.com/MartinDawgor/VacNet-Toolkit-Extension/blob/main/LICENSE"><img alt="GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-356ea8?style=flat-square"></a>
   <img alt="Chromium Manifest V3" src="https://img.shields.io/badge/Chromium-Manifest_V3-4285F4?style=flat-square&logo=googlechrome&logoColor=white">
   <img alt="Firefox 128+" src="https://img.shields.io/badge/Firefox-128%2B-FF7139?style=flat-square&logo=firefoxbrowser&logoColor=white">
@@ -30,6 +30,12 @@
 </p>
 
 ## 🚀 Quick start
+
+### Updated portal compatibility (3.0.2)
+
+Plyr, the styled verdict panel, all toolbar buttons, presets and player shortcuts work in both modes. Legacy clips retain all four categories; the new type has one cheating question with cheating, uncertain and no-cheating answers. Presets are stored separately for each mode. The interface and history use Russian. New reviews retain the original media, watched-progress restrictions and site confirmation; decision ticks are submitted unchanged.
+
+History records the verdict and `verdict_tick` when a different task opens in the same tab. Until then, the record is pending for 10 minutes; no history entry is created if there is no next task. Legacy four-category clips retain their original interface. Compatibility was checked against a saved page and local scenarios; server submission still needs verification in an authenticated browser session.
 
 > Active access to the official VACNet labeling portal is required.
 
@@ -53,6 +59,30 @@ Temporary add-ons must be loaded again after restarting Firefox. A signed packag
 | Chrome | Primary Manifest V3 build |
 | Edge, Brave, Opera | Current Chromium-based versions |
 | Firefox | Dedicated MV3 build, version 128+ |
+
+## Development
+
+Building from source requires Node.js 22.12 or newer and npm.
+
+```sh
+npm ci
+npm run check
+```
+
+`check` runs TypeScript checks, builds for Chrome and Firefox, and validates the permissions, scripts, assets, and translations in both packages.
+
+After adding or removing keys in `public/_locales`, run `npm run generate:i18n` to update the typed translation key list.
+
+| Command | Result |
+| --- | --- |
+| `npm run dev` | Chrome development with automatic reloads |
+| `npm run dev:firefox` | Firefox development |
+| `npm run build:all` | Both builds in `.output/chrome-mv3` and `.output/firefox-mv3` |
+| `npm run typecheck` | Type checking without a build |
+| `npm run zip` | Chrome archive in `.output` |
+| `npm run zip:firefox` | Firefox archive in `.output` |
+
+For manual installation, select the corresponding build directory instead of the repository root. The Firefox build uses a separate local ID, `vacnet-toolkit-local@extensions.invalid`, so its settings and history are separate from the published add-on. Use history export and import to transfer records if needed. The local Firefox archive is unsigned.
 
 ## ✨ Highlights
 
@@ -106,7 +136,9 @@ You can also:
 
 Shortcuts use physical key positions and work across keyboard layouts. They are disabled while typing, interacting with controls, viewing a modal, or submitting a verdict.
 
-> If **Instant submit** is enabled for a preset, pressing its number immediately submits the saved verdict set.
+For new reviews, `Enter` confirms the selected answer after the site's arming delay, and `Backspace` selects uncertain when available. `E` applies only to clips with a marked event.
+
+> If **Instant submit** is enabled for a preset, pressing its number submits the saved answer. New reviews retain the site's watched-progress restrictions and confirmation delay.
 
 ## 🔐 Privacy
 

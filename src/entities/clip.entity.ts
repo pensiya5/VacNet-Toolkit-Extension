@@ -25,7 +25,8 @@ export const ClipIdentitySchema = z.strictObject({
 
 export const ClipDetailsSchema = z.strictObject({
   range: ClipRangeSchema,
-  eventTime: z.number().finite().nonnegative(),
+  eventTime: z.union([z.number().finite().nonnegative(), z.literal(-1)]),
+  reviewType: z.enum(['legacy', 'cheating']).default('legacy'),
   clipCount: z.string().trim().max(128).nullable(),
   app: boundedText,
   matchTimestamp: z.number().finite().nonnegative().nullable().default(null),
@@ -43,6 +44,16 @@ export const PlayerMetricsSchema = z.strictObject({
   frameDuration: z.number().finite().positive(),
 });
 
+export const NativeReviewControlsSchema = z.strictObject({
+  positiveAvailable: z.boolean(),
+  skipAvailable: z.boolean(),
+  negativeAvailable: z.boolean(),
+  confirming: z.boolean(),
+  confirmAvailable: z.boolean(),
+  decisionTick: z.number().finite().nonnegative().nullable(),
+});
+export type NativeReviewControls = z.infer<typeof NativeReviewControlsSchema>;
+
 export const PageSnapshotSchema = z.strictObject({
   clip: ClipDataSchema.nullable(),
   deduplication: ClipDeduplicationSchema.nullable(),
@@ -52,6 +63,7 @@ export const PageSnapshotSchema = z.strictObject({
   hasVideo: z.boolean(),
   submitting: z.boolean(),
   error: z.string().max(8_192).nullable(),
+  reviewControls: NativeReviewControlsSchema.nullable().default(null),
 });
 
 export type ClipRange = z.infer<typeof ClipRangeSchema>;

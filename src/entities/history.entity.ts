@@ -11,6 +11,7 @@ export const ClipHistoryEntrySchema = VerdictSelectionSchema.merge(ClipDataSchem
   deduplication: ClipDeduplicationSchema,
   timestamp: z.number().finite().nonnegative(),
   badClip: z.boolean(),
+  verdictTick: z.number().finite().nonnegative().nullable().default(null),
   matchTimestamp: z.number().finite().nonnegative().nullable().default(null),
   webmDuration: z.number().finite().nonnegative().nullable().default(null),
 });

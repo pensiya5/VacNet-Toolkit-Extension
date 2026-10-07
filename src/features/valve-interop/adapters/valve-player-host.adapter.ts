@@ -42,6 +42,7 @@ export interface ValveVideoJsApi {
 }
 
 import type { ReviewVideoHost } from '../../../shared/ports/review-video-host.port';
+import { isNativeReviewPage } from '../review-mode.utils';
 
 const LEGACY_PLAYER_SELECTOR = '.video-js, #video_html5_api, video#video, video.vjs-tech';
 const SUPPORTED_VALVE_DISPOSE_VERSION = '8.23.3';
@@ -122,6 +123,8 @@ export class ValvePlayerHost {
   private host: ReviewVideoHost | null = null;
   private originalVideoJs: ValveVideoJsApi | undefined;
   private installedShim: ValveVideoJsApi | null = null;
+  private nativeParent: HTMLElement | null = null;
+  private nativeControls = false;
 
   constructor(private readonly prepareValveTeardown: () => void) {}
 
@@ -130,6 +133,22 @@ export class ValvePlayerHost {
 
     const container = document.querySelector<HTMLElement>('.videocontainer');
     if (!container) throw new Error(getMessage("errValveNoVideoContainer"));
+
+    if (isNativeReviewPage(document)) {
+      const video = container.querySelector<HTMLVideoElement>('#video_html5_api, video#video, video.vjs-tech');
+      if (!video?.parentElement) throw new Error(getMessage('errValveNoVideoContainer'));
+      this.nativeParent = video.parentElement;
+      this.nativeControls = video.controls;
+      const element = document.createElement('div');
+      element.dataset.vacnetPlayerHost = 'true';
+      element.dataset.vacnetNativePlayer = 'true';
+      element.className = 'vacnet-review-player-host';
+      video.before(element);
+      element.append(video);
+      this.nativeParent.classList.add('vacnet-native-player-active');
+      this.host = { element, video };
+      return this.host;
+    }
 
     this.prepareValveTeardown();
     const legacyPlayer = window.videojs?.getPlayer?.('video');
@@ -159,6 +178,13 @@ export class ValvePlayerHost {
   }
 
   dispose(): void {
+    if (this.nativeParent && this.host) {
+      // Restore the exact tech node: Video.js and the site's closures retain it.
+      this.host.element.before(this.host.video);
+      this.host.video.controls = this.nativeControls;
+      this.nativeParent.classList.remove('vacnet-native-player-active');
+      this.nativeParent = null;
+    }
     this.host?.element.remove();
     this.host = null;
     if (this.installedShim && window.videojs === this.installedShim) {

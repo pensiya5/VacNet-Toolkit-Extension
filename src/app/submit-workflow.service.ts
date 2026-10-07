@@ -64,6 +64,14 @@ export class SubmitWorkflow {
       controller.signal.throwIfAborted();
       const nextPage = await this.options.pageReader.read(responseText, acceptedPageUrl);
       controller.signal.throwIfAborted();
+      if (nextPage.clip.reviewType === 'cheating') {
+        // New site scripts own watched progress and decision ticks. Load them normally
+        // instead of carrying a legacy player's closures into the new task.
+        const historyError = await historyPersistence;
+        if (historyError) this.options.onError(getMessage('errVerdictAcceptedHistoryFailed', historyError));
+        this.options.navigator.replace(acceptedPageUrl);
+        return;
+      }
       this.options.pageCommitter.validate(nextPage);
       const commit = this.options.pageCommitter.commit(nextPage);
       try {

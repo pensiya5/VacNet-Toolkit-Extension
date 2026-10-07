@@ -25,6 +25,27 @@
   text-align: center;
 }
 
+.nativePanel {
+  position: static;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.hint,
+.decisionTick {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.decisionTick {
+  font-family: var(--font-mono);
+}
+
 .category {
   margin: 0;
   padding: 8px 0;
@@ -75,6 +96,17 @@
   width: 1px;
   height: 1px;
   opacity: 0;
+}
+
+.choice:has(input:disabled) {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.choice:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  z-index: 1;
 }
 
 
@@ -219,6 +251,12 @@
 .actions button:disabled {
   opacity: 0.55;
   cursor: wait;
+}
+
+.actions .report {
+  grid-column: 1 / -1;
+  min-height: 30px;
+  font-size: 12px;
 }
 
 .clipCount {

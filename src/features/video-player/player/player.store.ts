@@ -11,6 +11,7 @@ const initialPageSnapshot = (): PageSnapshot => ({
   hasVideo: false,
   submitting: false,
   error: null,
+  reviewControls: null,
 });
 
 const normalizePageSnapshot = (snapshot: PageSnapshot): PageSnapshot => ({

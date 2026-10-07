@@ -3,7 +3,7 @@ const VIDEO_SELECTOR = '[data-vacnet-review-video], #video_html5_api, video#vide
 const hasVideoSource = (root: Document): boolean => {
   const video = root.querySelector<HTMLVideoElement>(VIDEO_SELECTOR);
   if (video && (video.currentSrc || video.getAttribute('src') || video.src)) return true;
-  return root.querySelector<HTMLSourceElement>(`${VIDEO_SELECTOR} source[src]`) !== null;
+  return !!video?.querySelector<HTMLSourceElement>('source[src]')?.getAttribute('src')?.trim();
 };
 
 const hasTask = (root: Document): boolean => Boolean(

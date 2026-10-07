@@ -1,0 +1,40 @@
+{
+  "name": "vacnet-toolkit-extension",
+  "version": "3.0.3",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "generate:i18n": "node scripts/generate-message-keys.mjs",
+    "dev": "wxt --mv3",
+    "dev:firefox": "wxt -b firefox --mv3",
+    "build": "wxt build --mv3",
+    "build:firefox": "wxt build -b firefox --mv3",
+    "build:all": "npm run build && npm run build:firefox",
+    "zip": "wxt zip --mv3",
+    "zip:firefox": "wxt zip -b firefox --mv3",
+    "typecheck": "wxt prepare && tsc --noEmit",
+    "test": "vitest run && node --test tests/*.test.mjs",
+    "check": "npm run typecheck && npm run build:all && npm test",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@preact/signals": "2.11.3",
+    "@webext-core/messaging": "4.0.0",
+    "plyr": "3.8.4",
+    "preact": "10.29.8",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "3.2.4",
+    "web-ext": "10.7.0",
+    "wxt": "0.21.4"
+  }
+}

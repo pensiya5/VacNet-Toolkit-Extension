@@ -4,7 +4,7 @@ export const verdictNames = ['aimassist', 'wallhack', 'autobhop', 'bot'] as cons
 
 export const verdictValues = ['positive', 'skip', 'negative'] as const;
 
-export const VerdictNameSchema = z.enum(verdictNames);
+export const VerdictNameSchema = z.enum([...verdictNames, 'cheating']);
 
 export const VerdictValueSchema = z.enum(verdictValues);
 
@@ -13,6 +13,7 @@ export const VerdictSelectionSchema = z.strictObject({
   wallhack: VerdictValueSchema,
   autobhop: VerdictValueSchema,
   bot: VerdictValueSchema,
+  cheating: VerdictValueSchema.optional(),
 });
 
 export type VerdictName = z.infer<typeof VerdictNameSchema>;

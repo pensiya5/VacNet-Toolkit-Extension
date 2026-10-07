@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ClipDataSchema, PageSnapshotSchema, type ClipData, type PageSnapshot } from '../../entities/clip.entity';
 import { HistoryLookupSchema } from '../../entities/history.entity';
 import { PreferencesPatchSchema, PreferencesSchema, type Preferences, type PreferencesPatch } from '../../entities/preferences.entity';
-import { VerdictNameSchema, VerdictSelectionSchema, VerdictValueSchema, type VerdictSelection } from '../../entities/verdict.entity';
+import { VerdictNameSchema, VerdictSelectionSchema, VerdictValueSchema, type VerdictSelection, type VerdictName } from '../../entities/verdict.entity';
 import { MessageCatalogSchema, type MessageCatalog } from '../services/i18n.service';
 
 export const toMainEvent = 'vacnet:v3:to-main';
@@ -14,6 +14,9 @@ export const WebmMetadataSchema = z.strictObject({
 });
 
 export const ReviewCommandSchema = z.discriminatedUnion('type', [
+  z.strictObject({ type: z.literal('confirm-verdict') }),
+  z.strictObject({ type: z.literal('cancel-verdict') }),
+  z.strictObject({ type: z.literal('report-bad-clip') }),
   z.strictObject({
     type: z.literal('set-verdict'),
     name: VerdictNameSchema,
@@ -55,7 +58,10 @@ export const PlayerOverlayEventSchema = z.discriminatedUnion('kind', [
 ]);
 
 export type ReviewCommand =
-  | { type: 'set-verdict'; name: 'aimassist' | 'wallhack' | 'autobhop' | 'bot'; value: 'positive' | 'negative' | 'skip' }
+  | { type: 'confirm-verdict' }
+  | { type: 'cancel-verdict' }
+  | { type: 'report-bad-clip' }
+  | { type: 'set-verdict'; name: VerdictName; value: 'positive' | 'negative' | 'skip' }
   | { type: 'set-verdicts'; verdicts: VerdictSelection }
   | { type: 'submit'; verdicts: VerdictSelection; badClip: boolean };
 
@@ -83,7 +89,7 @@ export type MainEvent =
   | { type: 'player-overlay'; overlay: PlayerOverlayEvent };
 
 export type HistoryFindParams = { clip: ClipData };
-export type HistorySaveParams = { clip: ClipData; verdicts: VerdictSelection; badClip: boolean };
+export type HistorySaveParams = { clip: ClipData; verdicts: VerdictSelection; badClip: boolean; verdictTick?: number | null; submittedAt?: number };
 export type WebmMetadata = z.infer<typeof WebmMetadataSchema>;
 export type WebmMetadataReadParams = { url: string };
 
@@ -95,10 +101,12 @@ const RemoteFailureSchema = z.strictObject({
 });
 
 const HistoryFindParamsSchema = z.strictObject({ clip: ClipDataSchema });
-const HistorySaveParamsSchema = z.strictObject({
+export const HistorySaveParamsSchema = z.strictObject({
   clip: ClipDataSchema,
   verdicts: VerdictSelectionSchema,
   badClip: z.boolean(),
+  verdictTick: z.number().finite().nonnegative().nullable().optional(),
+  submittedAt: z.number().finite().nonnegative().optional(),
 });
 const WebmMetadataReadParamsSchema = z.strictObject({ url: z.string().min(1).max(8_192) });
 

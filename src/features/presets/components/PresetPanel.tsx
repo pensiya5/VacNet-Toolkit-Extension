@@ -9,13 +9,14 @@ import { createPresetCommand } from '../../../shared/utils/preset-hotkeys.utils'
 import styles from './PresetPanel.module.css';
 
 interface PresetPanelProps {
+  nativeReview?: boolean;
   isOpen: boolean;
   presets: CustomPreset[];
   onCommand: (command: ReviewCommand) => void;
   onSave: (presets: CustomPreset[]) => void;
 }
 
-export const PresetPanel = ({ isOpen, presets, onCommand, onSave }: PresetPanelProps) => {
+export const PresetPanel = ({ nativeReview = false, isOpen, presets, onCommand, onSave }: PresetPanelProps) => {
   const t = useTranslation();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -24,7 +25,7 @@ export const PresetPanel = ({ isOpen, presets, onCommand, onSave }: PresetPanelP
 
   return (
     <>
-      <aside class={`${styles.panel} ${isOpen ? styles.open : ''}`} aria-hidden={!isOpen} aria-label={t('presetPanelTitle')}>
+      <aside class={`${styles.panel} ${nativeReview ? styles.nativePanel : ''} ${isOpen ? styles.open : ''}`} aria-hidden={!isOpen} inert={!isOpen} aria-label={t('presetPanelTitle')}>
         <h1>{t('presetPanelTitle')}</h1>
         <div class={styles.grid}>
           {presets.map((preset, index) => (
@@ -48,6 +49,7 @@ export const PresetPanel = ({ isOpen, presets, onCommand, onSave }: PresetPanelP
       </aside>
       {editingIndex !== null && (
         <PresetEditor
+          nativeReview={nativeReview}
           preset={editingPreset}
           existingPresets={presets}
           onClose={() => setEditingIndex(null)}
@@ -69,7 +71,7 @@ export const PresetPanel = ({ isOpen, presets, onCommand, onSave }: PresetPanelP
             class={styles.resetConfirm}
             onSubmit={(event) => {
               event.preventDefault();
-              onCommand({ type: 'set-verdicts', verdicts: emptyVerdicts() });
+              onCommand({ type: 'set-verdicts', verdicts: nativeReview ? { ...emptyVerdicts(), cheating: 'skip' } : emptyVerdicts() });
               onSave([]);
               setShowResetConfirm(false);
             }}

@@ -8,6 +8,7 @@ const StoredPreferencesSchema = z.object({
   stretchVideo: z.boolean().optional(),
   hideNickname: z.boolean().optional(),
   customPresets: z.unknown().optional(),
+  cheatingPresets: z.unknown().optional(),
   presetPanelOpen: z.boolean().optional(),
   keepControlsVisible: z.boolean().optional(),
   autoApplyRepeatVerdicts: z.boolean().optional(),
@@ -29,6 +30,7 @@ export const migrateStoredPreferences = (
   const parsed = StoredPreferencesSchema.safeParse(value);
   const source = parsed.success ? parsed.data : {};
   const presets = CustomPresetsSchema.safeParse(source.customPresets);
+  const cheatingPresets = CustomPresetsSchema.safeParse(source.cheatingPresets);
   const legacyDashboardOpen = z.boolean().safeParse(legacyValues.dashboardOpen);
   const legacyStretchVideo = z.boolean().safeParse(legacyValues.stretchVideo);
   const theme = ThemeSchema.parse(source.theme);
@@ -38,6 +40,7 @@ export const migrateStoredPreferences = (
     stretchVideo: source.stretchVideo ?? (legacyStretchVideo.success ? legacyStretchVideo.data : defaults.stretchVideo),
     hideNickname: source.hideNickname ?? defaults.hideNickname,
     customPresets: presets.success ? presets.data : defaults.customPresets,
+    cheatingPresets: cheatingPresets.success ? cheatingPresets.data : defaults.cheatingPresets,
     presetPanelOpen: source.presetPanelOpen ?? defaults.presetPanelOpen,
     keepControlsVisible: source.keepControlsVisible ?? defaults.keepControlsVisible,
     autoApplyRepeatVerdicts: source.autoApplyRepeatVerdicts ?? defaults.autoApplyRepeatVerdicts,

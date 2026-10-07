@@ -1,5 +1,5 @@
 import { getMessage } from '../../../shared/services/i18n.service';
-import type { ClipData, ClipDeduplication } from '../../../entities/clip.entity';
+import type { ClipData, ClipDeduplication, NativeReviewControls } from '../../../entities/clip.entity';
 import { emptyVerdicts, verdictNames, verdictValues, type VerdictName, type VerdictSelection, type VerdictValue } from '../../../entities/verdict.entity';
 import type { Translate } from '../../../shared/services/i18n.service';
 import { useTranslation } from '../../../shared/components/TranslationProvider';
@@ -7,27 +7,33 @@ import { formatMatchDate } from '../../../shared/utils/formatters.utils';
 import styles from './VerdictPanel.module.css';
 
 interface VerdictPanelProps {
+  nativeReview?: boolean;
+  reviewControls?: NativeReviewControls | null;
   clip: ClipData | null;
   deduplication: ClipDeduplication | null;
   clipCount: string | null;
   error: string | null;
   onChange: (name: VerdictName, value: VerdictValue) => void;
   onSubmit: (verdicts: VerdictSelection, badClip: boolean) => void;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  onReportBadClip?: () => void;
   previousVerdicts: VerdictSelection | null;
   submitting: boolean;
   verdicts: VerdictSelection;
 }
 
 const labels = (t: Translate): Record<VerdictName, string> => ({
+  cheating: t('labelCheating'),
   aimassist: t('labelAimAssist'),
   wallhack: t('labelWallHack'),
   autobhop: t('labelAutoBhop'),
   bot: t('labelBot'),
 });
 
-const choiceLabel = (value: VerdictValue, t: Translate): string => {
-  if (value === 'positive') return t('btnYes');
-  if (value === 'negative') return t('btnNo');
+const choiceLabel = (value: VerdictValue, t: Translate, nativeReview = false): string => {
+  if (value === 'positive') return t(nativeReview ? 'cheatingYes' : 'btnYes');
+  if (value === 'negative') return t(nativeReview ? 'cheatingNo' : 'btnNo');
   return t('btnUncertain');
 };
 
@@ -86,12 +92,17 @@ const choiceColorClass = (value: VerdictValue): string => {
 };
 
 export const VerdictPanel = ({
+  nativeReview = false,
+  reviewControls = null,
   clip,
   clipCount,
   deduplication,
   error,
   onChange,
   onSubmit,
+  onConfirm,
+  onCancel,
+  onReportBadClip,
   previousVerdicts,
   submitting,
   verdicts,
@@ -99,12 +110,19 @@ export const VerdictPanel = ({
   const t = useTranslation();
   const categoryLabels = labels(t);
   const summary = duplicateSummary(deduplication, t);
+  const categories: readonly VerdictName[] = nativeReview ? ['cheating'] : verdictNames;
+  const previousCategories: readonly VerdictName[] = previousVerdicts?.cheating !== undefined ? ['cheating'] : verdictNames;
+  const nativeAvailability = {
+    positive: reviewControls?.positiveAvailable ?? false,
+    skip: reviewControls?.skipAvailable ?? false,
+    negative: reviewControls?.negativeAvailable ?? false,
+  };
 
   return (
-    <section class={styles.panel} aria-label={t('verdictTitle')}>
+    <section class={`${styles.panel} ${nativeReview ? styles.nativePanel : ''}`} aria-label={t('verdictTitle')}>
       <h1>{t('verdictTitle')}</h1>
-      {verdictNames.map((name) => (
-        <fieldset class={styles.category} disabled={submitting} key={name}>
+      {categories.map((name) => (
+        <fieldset class={styles.category} disabled={submitting || (nativeReview && Boolean(reviewControls?.confirming))} key={name}>
           <legend>{categoryLabels[name]}</legend>
           <div class={styles.choices}>
             {verdictValues.map((value) => {
@@ -116,10 +134,11 @@ export const VerdictPanel = ({
                     type="radio"
                     name={`vacnet-${name}`}
                     value={value}
+                    disabled={nativeReview && !nativeAvailability[value]}
                     checked={verdicts[name] === value}
                     onChange={() => onChange(name, value)}
                   />
-                  <span>{choiceLabel(value, t)}</span>
+                  <span>{choiceLabel(value, t, nativeReview)}</span>
                 </label>
               );
             })}
@@ -127,14 +146,26 @@ export const VerdictPanel = ({
         </fieldset>
       ))}
       {error && <p class={styles.error} role="alert">{error}</p>}
-      <div class={styles.actions}>
+      {nativeReview && <p class={styles.hint} role="status">{t(reviewControls?.confirming ? 'nativeConfirmHint' : 'nativeWatchHint')}</p>}
+      {nativeReview ? <div class={styles.actions}>
+        <button type="button" disabled={submitting || !reviewControls?.confirmAvailable} onClick={onConfirm}>
+          {t('btnConfirm')}
+        </button>
+        <button type="button" disabled={submitting || !reviewControls?.confirming} onClick={onCancel}>
+          {t('cancel')}
+        </button>
+        <button type="button" class={styles.report} disabled={submitting || !clip || Boolean(reviewControls?.confirming)} onClick={onReportBadClip}>
+          {t('btnReportBadClip')}
+        </button>
+      </div> : <div class={styles.actions}>
         <button type="button" disabled={submitting} onClick={() => onSubmit(verdicts, false)}>
           {t('btnSubmit')}
         </button>
         <button type="button" disabled={submitting} onClick={() => onSubmit(emptyVerdicts(), false)}>
           {t('btnSkip')}
         </button>
-      </div>
+      </div>}
+      {nativeReview && reviewControls?.decisionTick != null && <p class={styles.decisionTick}>{t('verdictTick')}: {reviewControls.decisionTick.toFixed(2)}</p>}
       
       {clip && (
         <div class={previousVerdicts ? styles.infoGrid : styles.infoGridSingle}>
@@ -153,12 +184,13 @@ export const VerdictPanel = ({
             <section class={styles.previous}>
               <h2>{t('previousVerdicts')}</h2>
               <dl>
-                {verdictNames.map((name) => {
+                {previousCategories.map((name) => {
                   const val = previousVerdicts[name];
+                  if (val === undefined) return null;
                   return (
                     <div key={name}>
                       <dt>{categoryLabels[name]}</dt>
-                      <dd class={valueColorClass(val)}>{choiceLabel(val, t)}</dd>
+                      <dd class={valueColorClass(val)}>{choiceLabel(val, t, name === 'cheating')}</dd>
                     </div>
                   );
                 })}

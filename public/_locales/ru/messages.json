@@ -48,7 +48,7 @@
     "message": "Отправить вердикт"
   },
   "btnUncertain": {
-    "message": "Не уверен"
+    "message": "Неясно"
   },
   "btnYes": {
     "message": "Да"
@@ -908,5 +908,71 @@
   },
   "xrayActive": {
     "message": "X-Ray включён, игроки видны сквозь препятствия для удобства анализа поведения."
+  },
+  "nativeReviewInstructions": {
+    "message": "Смотрите видео с начала. Выберите «Читер», как только уверены: момент выбора записывается. «Неясно» и «Не читер» доступны после просмотра. Подтвердите или отмените решение."
+  },
+  "nativeReviewNotice": {
+    "message": "VACNET Toolkit: выбирайте вердикт кнопками сайта. История сохранит ответ и момент решения при открытии следующего задания."
+  },
+  "nativeHotkeyHelp": {
+    "message": "Пробел / K — воспроизведение или пауза · ← / → — покадрово · J / L — перемотка в просмотренном · R — сначала · Z — увеличение · [ / ] — скорость · 1–9 — пресеты · Enter — подтвердить, когда доступно · Backspace — «Неясно», когда доступно · M — отключить звук"
+  },
+  "nativePlayerRuntime": {
+    "message": "Плеер сайта (Video.js)"
+  },
+  "labelCheating": {
+    "message": "Использование читов"
+  },
+  "verdictTick": {
+    "message": "Тик решения"
+  },
+  "cheatingYes": {
+    "message": "Читер"
+  },
+  "cheatingNo": {
+    "message": "Не читер"
+  },
+  "nativeWatchHint": {
+    "message": "Досмотрите видео, чтобы выбрать «Неясно» или «Не читер»."
+  },
+  "nativeConfirmHint": {
+    "message": "Подтвердите решение или отмените его, чтобы продолжить просмотр."
+  },
+  "nativeStartMatch": {
+    "message": "Нажмите «Воспроизвести», чтобы начать просмотр"
+  },
+  "sourceNativeStartMatch": {
+    "message": "Press play to start the match"
+  },
+  "nativeFullMatch": {
+    "message": "В этом видео показаны моменты матча игрока, который может использовать читы."
+  },
+  "sourceNativeFullMatch": {
+    "message": "This video is a full match of highlights from a Subject who may or may not be cheating."
+  },
+  "nativeChooseEarly": {
+    "message": "Выберите «Читер», как только увидите достаточно доказательств использования читов."
+  },
+  "sourceNativeChooseEarly": {
+    "message": "Select and submit \"Mark Cheating\" as soon as you have seen enough evidence that you believe the Subject is cheating beyond a reasonable doubt."
+  },
+  "nativeDecisionMoment": {
+    "message": "Момент выбора ответа «Читер» записывается для обучения будущих моделей VACNet."
+  },
+  "sourceNativeDecisionMoment": {
+    "message": "The point at which you select \"Mark Cheating\" is important and recorded for future VACNet model training."
+  },
+  "nativeChooseEnd": {
+    "message": "Если после просмотра недостаточно доказательств, выберите «Не читер». Если не можете определить — «Неясно»."
+  },
+  "sourceNativeChooseEnd": {
+    "message": "Select \"No Cheating Seen\" if you reach the end of the highlights and there is not enough evidence to confidently claim the Subject is cheating. If you can't tell either way, select \"Uncertain\"."
+  },
+  "nativeTraining": {
+    "message": "Любой вердикт одинаково полезен для обучения будущих моделей VACNet."
+  },
+  "sourceNativeTraining": {
+    "message": "Every verdict is equally useful for training future VACNet models."
   }
 }

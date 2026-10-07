@@ -5,6 +5,8 @@ import { createMainMessageBus } from '../src/shared/message-bus.adapter';
 import 'plyr/dist/plyr.css';
 import '../src/features/theme/components/theme.css';
 import '../src/features/valve-interop/components/valve-overrides.css';
+import '../src/features/valve-interop/components/native-player.css';
+import '../src/features/valve-interop/components/native-review.css';
 import { startExtensionBoot } from '../src/app/extension-boot.service';
 
 export default defineContentScript({

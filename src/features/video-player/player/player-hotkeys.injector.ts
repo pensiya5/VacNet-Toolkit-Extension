@@ -1,6 +1,7 @@
 import type { ContentScriptContext } from 'wxt/utils/content-script-context';
 import type { PageSnapshot } from '../../../entities/clip.entity';
 import { emptyVerdicts } from '../../../entities/verdict.entity';
+import { isNativeReviewPage } from '../../valve-interop/review-mode.utils';
 import type { PlayerCommand, ReviewCommand } from '../../../shared/ports/protocol.port';
 import type { CustomPreset } from '../../../entities/preset.entity';
 import { createPresetCommand, presetIndexFromCode } from '../../../shared/utils/preset-hotkeys.utils';
@@ -49,8 +50,11 @@ export const installPlayerHotkeys = ({ context, isDashboardOpen, isModalOpen, cl
       return;
     }
     const snapshot = getSnapshot();
+    const nativeReview = isNativeReviewPage(document);
     const target = event.composedPath()[0] as EventTarget | null;
     if (isInteractiveTarget(target) || isModalOpen() || snapshot.submitting) return;
+    const handledCodes = new Set<string>(Object.values(PLAYER_HOTKEYS));
+    if (nativeReview && (handledCodes.has(event.code) || presetIndexFromCode(event.code) !== null)) event.stopImmediatePropagation();
 
     const presetIndex = presetIndexFromCode(event.code);
     if (presetIndex !== null) {
@@ -64,15 +68,16 @@ export const installPlayerHotkeys = ({ context, isDashboardOpen, isModalOpen, cl
     if (event.code === PLAYER_HOTKEYS.submit) {
       if (!snapshot.clip || !snapshot.hasVideo) return;
       event.preventDefault();
-      emitReviewCommand({ type: 'submit', verdicts: snapshot.verdicts, badClip: false });
+      emitReviewCommand(nativeReview ? { type: 'confirm-verdict' } : { type: 'submit', verdicts: snapshot.verdicts, badClip: false });
       return;
     }
     if (event.code === PLAYER_HOTKEYS.skip) {
       event.preventDefault();
-      emitReviewCommand({ type: 'submit', verdicts: emptyVerdicts(), badClip: false });
+      emitReviewCommand(nativeReview ? { type: 'set-verdict', name: 'cheating', value: 'skip' } : { type: 'submit', verdicts: emptyVerdicts(), badClip: false });
       return;
     }
     if (event.code === PLAYER_HOTKEYS.jumpToEvent) {
+      if (nativeReview && (snapshot.clip?.eventTime ?? -1) < 0) return;
       event.preventDefault();
       emitPlayerCommand({ type: 'jump-to-event' });
       return;
@@ -100,5 +105,5 @@ export const installPlayerHotkeys = ({ context, isDashboardOpen, isModalOpen, cl
     if (event.code !== PLAYER_HOTKEYS.stepBackward && event.code !== PLAYER_HOTKEYS.stepForward) return;
     event.preventDefault();
     emitPlayerCommand({ type: 'step', direction: event.code === PLAYER_HOTKEYS.stepBackward ? -1 : 1 });
-  });
+  }, { capture: true });
 };

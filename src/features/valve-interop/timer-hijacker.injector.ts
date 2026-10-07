@@ -1,3 +1,5 @@
+import { isNativeReviewPage } from './review-mode.utils';
+
 export interface ValveTimerHijacker {
   markClipTransition: () => void;
   markPlayerReplacement: () => void;
@@ -12,6 +14,10 @@ export const installValveTimerHijacker = (): ValveTimerHijacker => {
   const nativeClearTimeout = window.clearTimeout.bind(window);
   let hasClipTransition = false;
   let hasPlayerReplacement = false;
+  // The updated layout is parsed before the inline video scripts, while the
+  // verdict form appears later. Preserve its timers from their first invocation.
+  const preserveSiteTimers = (): boolean => isNativeReviewPage(document)
+    || document.querySelector('.review-layout') !== null;
   const pendingValveTimeouts = new Set<number>();
 
   type TimerHandlerFn = (...args: unknown[]) => void;
@@ -38,7 +44,7 @@ export const installValveTimerHijacker = (): ValveTimerHijacker => {
     timeout?: number,
     ...parameters: unknown[]
   ): number => {
-    if (isValveTimerPattern(handler, timeout, ['startTime', 'endTime', 'currentTime'])) return -1;
+    if (!preserveSiteTimers() && isValveTimerPattern(handler, timeout, ['startTime', 'endTime', 'currentTime'])) return -1;
     return nativeSetInterval(handler, timeout, ...parameters);
   };
 
@@ -47,7 +53,7 @@ export const installValveTimerHijacker = (): ValveTimerHijacker => {
     timeout?: number,
     ...parameters: unknown[]
   ): number => {
-    if (isValveTimerPattern(handler, timeout, ['startTime', 'currentTime'])) {
+    if (!preserveSiteTimers() && isValveTimerPattern(handler, timeout, ['startTime', 'currentTime'])) {
       if (hasClipTransition || hasPlayerReplacement) return -1;
       const timeoutId = nativeSetTimeout(handler, timeout, ...parameters);
       pendingValveTimeouts.add(timeoutId);

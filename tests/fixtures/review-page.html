@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- Minimal reproduction of the updated review page; no account data or signed media URLs. -->
+<div class="review-layout">
+  <div class="video-column"><div class="videocontainer">
+    <div id="video"><video id="video_html5_api"><source src="https://replay-video.valve.net/test/csow_0123456789abcdef.webm"></video></div>
+  </div></div>
+  <div class="verdict-column"><div class="verdicts-container">
+    <div id="verdictbuttons_cheating">
+      <input type="radio" name="cheating" value="positive" disabled>
+      <input type="radio" name="cheating" value="skip" disabled>
+      <input type="radio" name="cheating" value="negative" disabled>
+    </div>
+  </div>
+    <form id="submitverdictform" method="POST" action="https://www.counter-strike.net/vacnet/submit?">
+      <input type="hidden" name="verdict_task" value="test-task-1">
+      <input type="hidden" name="verdict_tick" id="form_verdict_tick">
+    </form>
+  </div>
+</div>
+<span class="ClipCount">Reviewed: 42</span>
+<script>
+  (function() {
+    const startTime = 0;
+    const endTime = startTime + 358.79998779297;
+    const eventTime = -1;
+    const player = videojs('video');
+  })();
+</script>

@@ -3,7 +3,22 @@
   color: var(--text-primary);
 }
 
+.reviewLayout {
+  display: contents;
+}
+
+.nativeReviewLayout {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  max-width: 960px;
+  margin: 16px auto 0;
+  box-sizing: border-box;
+}
+
 .videoToolbar {
+  z-index: 1000;
   position: fixed;
   top: 14px;
   left: 50%;
@@ -139,6 +154,11 @@
 }
 
 @media (max-width: 700px) {
+
+  .nativeReviewLayout {
+    flex-direction: column;
+    gap: 12px;
+  }
 
   .videoToolbar {
     gap: 4px;

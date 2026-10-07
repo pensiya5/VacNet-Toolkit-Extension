@@ -17,6 +17,7 @@ import { Icon } from '../../shared/components/Icon';
 import styles from './App.module.css';
 
 interface AppProps {
+  nativeReview?: boolean;
   footerTarget: HTMLElement | null;
   onReviewCommand: (command: ReviewCommand) => void;
   onClearHistory: () => void;
@@ -108,10 +109,12 @@ const ToolbarButtons = ({ onError }: { onError: (error: unknown) => void }) => {
   );
 };
 
-const VerdictPanelContainer = ({ onReviewCommand }: { onReviewCommand: (command: ReviewCommand) => void }) => {
+const VerdictPanelContainer = ({ nativeReview, onReviewCommand }: { nativeReview: boolean; onReviewCommand: (command: ReviewCommand) => void }) => {
   const snapshot = snapshotSignal;
   return (
     <VerdictPanel
+      nativeReview={nativeReview}
+      reviewControls={snapshot.value.reviewControls}
       clip={snapshot.value.clip}
       deduplication={snapshot.value.deduplication}
       clipCount={snapshot.value.clip?.clipCount ?? null}
@@ -125,6 +128,9 @@ const VerdictPanelContainer = ({ onReviewCommand }: { onReviewCommand: (command:
       onSubmit={(verdicts, badClip) => {
         onReviewCommand({ type: 'submit', verdicts, badClip });
       }}
+      onConfirm={() => onReviewCommand({ type: 'confirm-verdict' })}
+      onCancel={() => onReviewCommand({ type: 'cancel-verdict' })}
+      onReportBadClip={() => onReviewCommand({ type: 'report-bad-clip' })}
     />
   );
 };
@@ -163,6 +169,7 @@ const DashboardContainer = ({
 };
 
 export const App = ({
+  nativeReview = false,
   footerTarget,
   onClearHistory,
   onCopyMetrics,
@@ -186,14 +193,14 @@ export const App = ({
         <div class={styles.hoverDropdown}>
           <button type="button" aria-label={t('reviewInstructions')}><Icon name="info" /></button>
           <div class={styles.dropdownContent}>
-            <strong>{t('watchClipInstructions')}</strong>
+            <strong>{t(nativeReview ? 'nativeReviewInstructions' : 'watchClipInstructions')}</strong>
             <hr />
-            <ul class={styles.dropdownList}>
+            {!nativeReview && <ul class={styles.dropdownList}>
               <li>{t('xrayActive')}</li>
               <li>{t('verdictTrainingNotice')}</li>
               <li>{t('uncertainNotice')}</li>
               <li>{t('clipSelectionNotice')}</li>
-            </ul>
+            </ul>}
           </div>
         </div>
         <div class={styles.hoverDropdown}>
@@ -202,7 +209,7 @@ export const App = ({
             <strong>{t('hotkeyTitle')}</strong>
             <hr />
             <ul class={styles.dropdownList}>
-              {t('hotkeyHelp').split('·').map((hotkey) => <li key={hotkey}>{hotkey.trim()}</li>)}
+              {t(nativeReview ? 'nativeHotkeyHelp' : 'hotkeyHelp').split('·').map((hotkey) => <li key={hotkey}>{hotkey.trim()}</li>)}
             </ul>
           </div>
         </div>
@@ -224,13 +231,16 @@ export const App = ({
           />
         </nav>
       )}
-      <PresetPanel
-        isOpen={preferencesSignal.value.presetPanelOpen}
-        presets={preferencesSignal.value.customPresets}
-        onCommand={onReviewCommand}
-        onSave={(customPresets) => persistPreferences({ customPresets }, onError)}
-      />
-      <VerdictPanelContainer onReviewCommand={onReviewCommand} />
+      <div class={nativeReview ? styles.nativeReviewLayout : styles.reviewLayout}>
+        <PresetPanel
+          nativeReview={nativeReview}
+          isOpen={preferencesSignal.value.presetPanelOpen}
+          presets={nativeReview ? preferencesSignal.value.cheatingPresets : preferencesSignal.value.customPresets}
+          onCommand={onReviewCommand}
+          onSave={(presets) => persistPreferences(nativeReview ? { cheatingPresets: presets } : { customPresets: presets }, onError)}
+        />
+        <VerdictPanelContainer nativeReview={nativeReview} onReviewCommand={onReviewCommand} />
+      </div>
       <DashboardContainer
         onImportHistory={onImportHistory}
         onExportHistory={onExportHistory}

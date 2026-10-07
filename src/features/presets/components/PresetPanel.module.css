@@ -26,6 +26,28 @@
   pointer-events: auto;
 }
 
+.nativePanel {
+  position: static;
+  display: none;
+  flex: 0 0 120px;
+  overflow: visible;
+}
+
+.nativePanel.open {
+  display: flex;
+}
+
+@media (max-width: 700px) {
+  .nativePanel {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .nativePanel .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .panel h1 {
   margin: 0 0 6px;
   padding-bottom: 8px;

@@ -2,6 +2,12 @@ import { getMessage } from '../../shared/services/i18n.service';
 import type { MessageCatalog, MessageKey } from '../../shared/services/i18n.service';
 
 const translatedKeys: ReadonlyArray<readonly [MessageKey, MessageKey]> = [
+  ['nativeStartMatch', 'sourceNativeStartMatch'],
+  ['nativeFullMatch', 'sourceNativeFullMatch'],
+  ['nativeChooseEarly', 'sourceNativeChooseEarly'],
+  ['nativeDecisionMoment', 'sourceNativeDecisionMoment'],
+  ['nativeChooseEnd', 'sourceNativeChooseEnd'],
+  ['nativeTraining', 'sourceNativeTraining'],
   ['cs2VideoReview', 'sourceCs2VideoReview'],
   ['inviteReviewers', 'sourceInviteReviewers'],
   ['inviteReviewers', 'sourceInviteReviewersRu'],

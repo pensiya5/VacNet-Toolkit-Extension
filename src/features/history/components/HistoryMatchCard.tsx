@@ -94,14 +94,18 @@ export const HistoryMatchCard = ({ match, matchNumber }: HistoryMatchCardProps) 
               <div class={styles.clipMeta}>
                 {match.fallbackVideoId === null && <span title={entry.videoId}>{t('videoId')}: {entry.videoId.substring(0, 16)}...</span>}
                 <span>{t('taskId')}: {entry.taskId}</span>
-                 <span>{t('eventTime')}: {t('timeSeconds', entry.eventTime.toFixed(3))}</span>
+                 <span>{t('eventTime')}: {entry.eventTime >= 0 ? t('timeSeconds', entry.eventTime.toFixed(3)) : t('none')}</span>
+                {entry.verdictTick !== null && <span>{t('verdictTick')}: {entry.verdictTick.toFixed(2)}</span>}
                 <span class={statusClass(entry)}>
                   {deduplicationText(entry, t)}
                 </span>
               </div>
               {entry.badClip && <strong class={styles.badClip}>{t('badClip')}</strong>}
               <dl>
-                {verdictNames.map((name) => (
+                {entry.reviewType === 'cheating' ? (entry.cheating && !entry.badClip && <div>
+                  <dt>{t('labelCheating')}</dt>
+                  <dd class={verdictClass(entry.cheating)}>{entry.cheating === 'positive' ? t('cheatingYes') : entry.cheating === 'negative' ? t('cheatingNo') : t('btnUncertain')}</dd>
+                </div>) : verdictNames.map((name) => (
                   <div key={name}>
                     <dt>{labels[name]}</dt>
                     <dd class={verdictClass(entry[name])}>{verdictText(entry[name], t)}</dd>

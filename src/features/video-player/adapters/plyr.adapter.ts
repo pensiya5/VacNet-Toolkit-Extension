@@ -66,6 +66,7 @@ export class PlyrAdapter implements ReviewPlayerPort {
         this.instance.element?.classList.toggle('vacnet-zoom-active');
         return;
       case 'jump-to-event':
+        if (this.clip?.eventTime === -1) return;
         video.currentTime = calculateEventTargetTime(this.clip?.eventTime ?? this.range.start, this.range.start);
         return;
       case 'change-speed': {
@@ -93,6 +94,11 @@ export class PlyrAdapter implements ReviewPlayerPort {
     this.clip = clip;
     const video = this.requireVideo();
     this.range = normalizeReviewRange(clip.range);
+    if (clip.reviewType === 'cheating') {
+      // The site owns source selection, playback position and watched progress.
+      this.instance.updateMarker(clip, this.options.catalog()?.triggerMarkerLabel ?? '');
+      return;
+    }
     video.pause();
     this.instance.element?.classList.remove('vacnet-zoom-active');
     this.instance.element?.classList.add('vacnet-video-loading');
@@ -200,20 +206,22 @@ export class PlyrAdapter implements ReviewPlayerPort {
 
   private readonly onTimeUpdate = (): void => {
     const video = this.instance.video;
-    if (this.clip) {
+    if (this.clip && this.clip.eventTime >= 0) {
       const timeToTrigger = this.clip.eventTime - (video?.currentTime ?? 0);
       const t = this.options.catalog();
       if (timeToTrigger > 1 && timeToTrigger <= 4) this.setTriggerOverlay('countdown', t ? t.triggerCountdown.replace('[time]', String(Math.ceil(timeToTrigger - 1))) : '');
       else if (timeToTrigger <= 1 && timeToTrigger >= -1) this.setTriggerOverlay('flash', t?.triggerFlash ?? '');
       else this.setTriggerOverlay('hidden');
-    }
+    } else this.setTriggerOverlay('hidden');
 
+    if (this.clip?.reviewType === 'cheating') return;
     if (!video || video.currentTime < this.range.end || video.paused) return;
     video.pause();
     video.currentTime = this.range.end;
   };
 
   private readonly onEnded = (): void => {
+    if (this.clip?.reviewType === 'cheating') return;
     const video = this.instance.video;
     if (!video || video.currentTime < this.range.end) return;
     video.currentTime = this.range.end;

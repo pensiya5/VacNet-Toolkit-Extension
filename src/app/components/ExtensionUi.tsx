@@ -24,6 +24,7 @@ import { resetPlayerOverlays } from '../../features/video-player/player/player-o
 import { createMessageHandler } from '../controllers/message-handler.controller';
 import { ThemeInjector } from '../../features/theme/theme.injector';
 import { markExtensionUiReady } from '../extension-boot.service';
+import { isNativeReviewPage } from '../../features/valve-interop/review-mode.utils';
 
 const VIDEO_SELECTOR = '[data-vacnet-review-video], #video_html5_api, video.vjs-tech';
 
@@ -44,8 +45,9 @@ const createHistoryEntry = (
   clipKey: createClipIdentity(params.clip).clipKey,
   identityVersion: 2,
   deduplication,
-  timestamp: Date.now(),
+  timestamp: params.submittedAt ?? Date.now(),
   badClip: params.badClip,
+  verdictTick: params.verdictTick ?? null,
 });
 
 const reportError = (error: unknown): void => {
@@ -109,7 +111,7 @@ export const initializeExtensionUi = async (ctx: ContentScriptContext): Promise<
     resetPlayerOverlays();
     uiMounted = false;
     overlayUiMounted = false;
-    getBody()?.classList.remove('dashboard-open', 'vacnet-preset-panel-open', 'vacnet-extension-root');
+    getBody()?.classList.remove('dashboard-open', 'vacnet-preset-panel-open', 'vacnet-extension-root', 'vacnet-native-review');
   };
   ctx.onInvalidated(dispose);
 
@@ -132,7 +134,7 @@ export const initializeExtensionUi = async (ctx: ContentScriptContext): Promise<
     context: ctx,
     isDashboardOpen: () => dashboardStore.value !== null,
     isModalOpen: () => document.querySelector('[aria-modal="true"]') !== null,
-    getPresets: () => preferencesSignal.value.customPresets,
+    getPresets: () => isNativeReviewPage(document) ? preferencesSignal.value.cheatingPresets : preferencesSignal.value.customPresets,
     closeDashboard: () => {
       dashboardStore.close();
       void updatePreferences({ dashboardOpen: false }).catch(reportError);
@@ -155,7 +157,9 @@ export const initializeExtensionUi = async (ctx: ContentScriptContext): Promise<
     const body = getBody();
     if (!isActive() || !body) return;
 
+    const nativeReview = isNativeReviewPage(document);
     body.classList.add('vacnet-extension-root');
+    if (nativeReview) body.classList.add('vacnet-native-review');
     themeInjector.addTarget(body);
     localizer.start();
 
@@ -165,7 +169,7 @@ export const initializeExtensionUi = async (ctx: ContentScriptContext): Promise<
        anchor: '.verdict-column',
        append: 'last',
        mode: 'open',
-        isolateEvents: ['click', 'pointerdown', 'pointerup'],
+        isolateEvents: ['click', 'pointerdown', 'pointerup', 'keydown'],
         onMount(container, _shadow, shadowHost) {
           removeUiThemeTarget = themeInjector.addTarget(shadowHost);
          shadowHost.style.setProperty('display', 'contents', 'important');
@@ -175,6 +179,7 @@ export const initializeExtensionUi = async (ctx: ContentScriptContext): Promise<
         render(
           <TranslationProvider catalog={catalog}>
             <App
+              nativeReview={nativeReview}
               footerTarget={document.querySelector<HTMLElement>('.footer-buttons')}
               onReviewCommand={(command) => bus.emit({ type: 'review-command', command })}
               onClearHistory={() => {

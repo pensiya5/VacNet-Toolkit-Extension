@@ -24,7 +24,7 @@ export const DashboardMetrics = ({ snapshot }: { snapshot: PageSnapshot }) => {
          { key: 'video-id', label: t('videoId'), value: snapshot.clip?.videoId ?? t('statusLoadingNextClip') },
          { key: 'app', label: t('app'), value: snapshot.clip?.app ?? t('statusLoadingNextClip') },
           { key: 'clip-range', label: t('clipRange'), value: snapshot.clip ? formatClipRange(snapshot.clip.range.start, snapshot.clip.range.end, t) : t('statusLoadingNextClip') },
-          { key: 'event-time', label: t('eventTime'), value: snapshot.clip ? t('timeSeconds', snapshot.clip.eventTime.toFixed(3)) : t('statusLoadingNextClip') },
+          { key: 'event-time', label: t('eventTime'), value: snapshot.clip ? (snapshot.clip.eventTime >= 0 ? t('timeSeconds', snapshot.clip.eventTime.toFixed(3)) : t('none')) : t('statusLoadingNextClip') },
           { key: 'match-timestamp', label: t('matchDate'), value: snapshot.clip ? formatMatchDate(snapshot.clip.matchTimestamp, t) : t('statusLoadingNextClip') },
          { key: 'clip-key', label: t('clipKey'), value: snapshot.clip ? createClipIdentity(snapshot.clip).clipKey : t('statusLoadingNextClip') },
          { key: 'identity-status', label: t('clipIdentityStatus'), value: describeDeduplication(snapshot.deduplication, t) },

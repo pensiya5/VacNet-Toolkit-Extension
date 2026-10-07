@@ -908,5 +908,71 @@
   },
   "xrayActive": {
     "message": "X-Ray is active."
+  },
+  "nativeReviewInstructions": {
+    "message": "Watch from the start. Select Cheating as soon as you are sure: the decision moment is recorded. Uncertain and Not cheating are available after watching. Confirm or cancel your decision."
+  },
+  "nativeReviewNotice": {
+    "message": "VACNET Toolkit: use the site verdict buttons. History records the selected verdict and decision tick when the next task opens."
+  },
+  "nativeHotkeyHelp": {
+    "message": "Space / K — play or pause · ← / → — frame step · J / L — seek in the watched portion · R — restart · Z — zoom · [ / ] — speed · 1–9 — presets · Enter — confirm when enabled · Backspace — Uncertain when available · M — mute"
+  },
+  "nativePlayerRuntime": {
+    "message": "Site player (Video.js)"
+  },
+  "labelCheating": {
+    "message": "Cheating"
+  },
+  "verdictTick": {
+    "message": "Decision tick"
+  },
+  "cheatingYes": {
+    "message": "Cheating"
+  },
+  "cheatingNo": {
+    "message": "Not cheating"
+  },
+  "nativeWatchHint": {
+    "message": "Watch to the end to choose Uncertain or Not cheating."
+  },
+  "nativeConfirmHint": {
+    "message": "Confirm your decision or cancel to continue reviewing."
+  },
+  "nativeStartMatch": {
+    "message": "Press play to start the match"
+  },
+  "sourceNativeStartMatch": {
+    "message": "Press play to start the match"
+  },
+  "nativeFullMatch": {
+    "message": "This video is a full match of highlights from a Subject who may or may not be cheating."
+  },
+  "sourceNativeFullMatch": {
+    "message": "This video is a full match of highlights from a Subject who may or may not be cheating."
+  },
+  "nativeChooseEarly": {
+    "message": "Select and submit \"Mark Cheating\" as soon as you have seen enough evidence that you believe the Subject is cheating beyond a reasonable doubt."
+  },
+  "sourceNativeChooseEarly": {
+    "message": "Select and submit \"Mark Cheating\" as soon as you have seen enough evidence that you believe the Subject is cheating beyond a reasonable doubt."
+  },
+  "nativeDecisionMoment": {
+    "message": "The point at which you select \"Mark Cheating\" is important and recorded for future VACNet model training."
+  },
+  "sourceNativeDecisionMoment": {
+    "message": "The point at which you select \"Mark Cheating\" is important and recorded for future VACNet model training."
+  },
+  "nativeChooseEnd": {
+    "message": "Select \"No Cheating Seen\" if you reach the end of the highlights and there is not enough evidence to confidently claim the Subject is cheating. If you can't tell either way, select \"Uncertain\"."
+  },
+  "sourceNativeChooseEnd": {
+    "message": "Select \"No Cheating Seen\" if you reach the end of the highlights and there is not enough evidence to confidently claim the Subject is cheating. If you can't tell either way, select \"Uncertain\"."
+  },
+  "nativeTraining": {
+    "message": "Every verdict is equally useful for training future VACNet models."
+  },
+  "sourceNativeTraining": {
+    "message": "Every verdict is equally useful for training future VACNet models."
   }
 }
