@@ -138,10 +138,7 @@ export class VideoJsAdapter implements ReviewPlayerPort {
 
   private readonly onTimeUpdate = (): void => {
     const player = this.instance.getPlayer();
-    if (!player || this.range.end <= this.range.start) return;
-    if (player.currentTime() < this.range.end) return;
-    player.pause();
-    player.currentTime(this.range.end);
+    if (!player) return;
   };
 
   private readonly reportPlaybackError = (error: unknown): void => {

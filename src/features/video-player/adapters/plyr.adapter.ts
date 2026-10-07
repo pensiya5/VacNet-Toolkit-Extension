@@ -204,8 +204,10 @@ export class PlyrAdapter implements ReviewPlayerPort {
     this.options.onPreferences({ volume: video.volume, muted: video.muted });
   };
 
-  private readonly onTimeUpdate = (): void => {
+private readonly onTimeUpdate = (): void => {
     const video = this.instance.video;
+    if (this.clip?.reviewType === 'cheating') return;
+    if (!video) return;
     if (this.clip && this.clip.eventTime >= 0) {
       const timeToTrigger = this.clip.eventTime - (video?.currentTime ?? 0);
       const t = this.options.catalog();
@@ -213,30 +215,20 @@ export class PlyrAdapter implements ReviewPlayerPort {
       else if (timeToTrigger <= 1 && timeToTrigger >= -1) this.setTriggerOverlay('flash', t?.triggerFlash ?? '');
       else this.setTriggerOverlay('hidden');
     } else this.setTriggerOverlay('hidden');
-
-    if (this.clip?.reviewType === 'cheating') return;
-    if (!video || video.currentTime < this.range.end || video.paused) return;
-    video.pause();
-    video.currentTime = this.range.end;
   };
 
-  private readonly onEnded = (): void => {
+private readonly onEnded = (): void => {
     if (this.clip?.reviewType === 'cheating') return;
     const video = this.instance.video;
-    if (!video || video.currentTime < this.range.end) return;
-    video.currentTime = this.range.end;
+    if (!video) return;
   };
 
   private calculateStepTime(video: HTMLVideoElement, direction: number): number {
     const baseTime = this.stepTargetTime !== null ? this.stepTargetTime : video.currentTime;
-    const upper = this.range.end > this.range.start
-      ? this.range.end
-      : Number.isFinite(video.duration) && video.duration >= this.range.start
-        ? video.duration
-        : baseTime + this.frameDuration(video);
+    const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 0;
     const target = baseTime + direction * this.frameDuration(video);
     const lower = this.range.end > this.range.start ? this.range.start : 0;
-    return Math.min(upper, Math.max(lower, target));
+    return Math.min(duration, Math.max(lower, target));
   }
 
   private resetStepTimeout(): void {

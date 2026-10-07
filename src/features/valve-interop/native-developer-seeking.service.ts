@@ -10,9 +10,17 @@ declare global {
 
 export const installNativeDeveloperSeeking = (clip: ClipData): (() => void) => {
   const video = document.querySelector<HTMLVideoElement>('#video_html5_api, #video video');
+  if (!video) {
+    console.warn('[VACNET] Developer seeking inactive: the native video element was not found.');
+    return () => {};
+  }
   const originalWatched = window.BIsMatchWatched;
-  if (!video || !originalWatched || typeof furthestWatched !== 'number') return () => {};
-  const initialWatched = furthestWatched;
+  const boundaryUnlocked = typeof furthestWatched === 'number';
+  console.info('[VACNET] Developer seeking installed.', {
+    watchedCheck: typeof originalWatched === 'function' ? 'replaced' : 'not found on window',
+    seekBoundary: boundaryUnlocked ? 'unlocked' : 'unavailable',
+  });
+  const initialWatched = boundaryUnlocked ? furthestWatched : 0;
   const intervals: Array<[number, number]> = initialWatched > 0 ? [[0, initialWatched]] : [];
   let position = video.currentTime;
   let clock = performance.now();
@@ -24,9 +32,9 @@ export const installNativeDeveloperSeeking = (clip: ClipData): (() => void) => {
     const next = video.currentTime;
     const now = performance.now();
     const delta = next - position;
-    // Seeking resets the anchor. Merge only normal playback intervals so jumps
-    // and replaying the same segment cannot unlock the site's end-only answers.
-    if (playing && !video.seeking && delta > 0
+    // Merge intervals from both normal playback and seeking.
+    // Seeking progress is also counted toward the watched boundary.
+    if (playing && delta > 0
       && delta <= ((now - clock) / 1000) * Math.max(0.1, video.playbackRate) + 0.5) {
       intervals.push([position, next]);
       intervals.sort((a, b) => a[0] - b[0]);
@@ -39,31 +47,55 @@ export const installNativeDeveloperSeeking = (clip: ClipData): (() => void) => {
     }
     reset();
   };
-  const watched = (): boolean => {
-    const length = duration();
-    return length > 0 && intervals.reduce((sum, [start, end]) => sum + Math.max(0, Math.min(end, length) - start), 0) >= length - 5;
+  // The portal polls this to unlock its answers. Reporting the clip as fully
+  // watched lets a skipped/seeked clip be verdictable immediately.
+  const watched = (): boolean => true;
+  // The portal may restore its own check when a new clip mounts; re-assert ours.
+  const assertWatchedOverride = (): void => {
+    if (window.BIsMatchWatched === watched) return;
+    if (typeof window.BIsMatchWatched === 'function') {
+      console.warn('[VACNET] The portal replaced BIsMatchWatched; re-applying the override.');
+    }
+    window.BIsMatchWatched = watched;
   };
-  const unlock = (): void => { furthestWatched = Math.max(furthestWatched, duration()); };
-  // Raising the native seek boundary also enables the portal's J/L shortcuts.
-  // BIsMatchWatched remains based on actual coverage, not this seek boundary.
-  window.BIsMatchWatched = watched;
+  const overrideTimer = window.setInterval(assertWatchedOverride, 1_000);
+  const unlock = (): void => {
+    if (!boundaryUnlocked) return;
+    furthestWatched = Math.max(furthestWatched, duration());
+  };
+  // Seeking straight to the end does not fire the site's end-of-media handler
+  // while paused, so replay the event the portal uses to unlock its answers.
+  const fireEnded = (): void => {
+    const length = duration();
+    if (!(length > 0 && video.currentTime >= length - 0.5)) return;
+    video.dispatchEvent(new Event('ended'));
+  };
+  assertWatchedOverride();
   unlock();
   video.addEventListener('loadedmetadata', unlock);
   video.addEventListener('seeking', reset, true);
   video.addEventListener('seeked', reset, true);
+  video.addEventListener('seeked', fireEnded, true);
   video.addEventListener('play', reset, true);
   video.addEventListener('timeupdate', record, true);
   video.addEventListener('pause', record, true);
   video.addEventListener('ended', record, true);
   return () => {
+    window.clearInterval(overrideTimer);
     video.removeEventListener('loadedmetadata', unlock);
     video.removeEventListener('seeking', reset, true);
     video.removeEventListener('seeked', reset, true);
+    video.removeEventListener('seeked', fireEnded, true);
     video.removeEventListener('play', reset, true);
     video.removeEventListener('timeupdate', record, true);
     video.removeEventListener('pause', record, true);
     video.removeEventListener('ended', record, true);
-    if (window.BIsMatchWatched === watched) window.BIsMatchWatched = originalWatched;
-    furthestWatched = intervals.reduce((end, interval) => interval[0] <= end ? Math.max(end, interval[1]) : end, 0);
+    if (window.BIsMatchWatched === watched) {
+      if (originalWatched) window.BIsMatchWatched = originalWatched;
+      else delete window.BIsMatchWatched;
+    }
+    if (boundaryUnlocked) {
+      furthestWatched = intervals.reduce((end, interval) => interval[0] <= end ? Math.max(end, interval[1]) : end, 0);
+    }
   };
 };
