@@ -75,7 +75,7 @@ describe('Plyr over the preserved native review video', () => {
     expect(pause.mock.contexts).not.toContain(video);
   });
 
-  it('keeps legacy loading and range limiting', async () => {
+  it('keeps legacy loading and allows free seeking beyond the range', async () => {
     document.querySelector('#verdictbuttons_cheating')!.remove();
     document.querySelector('[name=verdict_tick]')!.remove();
     const legacyClip: ClipData = { ...clip, reviewType: 'legacy', eventTime: 5, range: { start: 2, end: 70 } };
@@ -92,8 +92,8 @@ describe('Plyr over the preserved native review video', () => {
     expect(load.mock.contexts).toContain(video);
     expect(document.querySelector('.plyr__progress__marker')).not.toBeNull();
     video.currentTime = 75; video.dispatchEvent(new Event('timeupdate'));
-    expect(video.currentTime).toBe(70);
-    expect(video.paused).toBe(true);
+    expect(video.currentTime).toBe(75);
+    expect(video.paused).toBe(false);
   });
 
   it('routes controls through native media and preserves the site freeze handler', async () => {
