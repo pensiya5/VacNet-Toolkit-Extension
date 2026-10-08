@@ -10,7 +10,7 @@ import { PlyrInstanceController } from '../controllers/plyr-instance.controller'
 import { calculateEventTargetTime, calculatePlaybackRate } from '../player/player-commands.utils';
 import { normalizeReviewRange } from '../player/player-range.utils';
 const FRAME_RATE_FALLBACK = 60;
-const PLYR_VERSION = '3.8.4';
+const PLYR_VERSION = '3.8.5';
 const assertNever = (value: never): never => {
   throw new Error(getMessage("errUnhandledPlayerCommand", String(value)));
 };

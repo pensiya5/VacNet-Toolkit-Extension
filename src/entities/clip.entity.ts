@@ -51,6 +51,7 @@ export const NativeReviewControlsSchema = z.strictObject({
   confirming: z.boolean(),
   confirmAvailable: z.boolean(),
   decisionTick: z.number().finite().nonnegative().nullable(),
+  decisionTime: z.number().finite().nonnegative().nullable(),
 });
 export type NativeReviewControls = z.infer<typeof NativeReviewControlsSchema>;
 

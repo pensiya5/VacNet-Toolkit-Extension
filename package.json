@@ -1,6 +1,6 @@
 {
   "name": "vacnet-toolkit-extension",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "type": "module",
   "license": "GPL-3.0-only",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@preact/signals": "2.11.3",
     "@webext-core/messaging": "4.0.0",
-    "plyr": "3.8.4",
+    "plyr": "3.8.5",
     "preact": "10.29.8",
     "zod": "4.6.5"
   },

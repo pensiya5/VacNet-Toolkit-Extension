@@ -48,7 +48,7 @@ it('routes a custom cheating choice through the site and keeps its exact tick an
   radio('positive').disabled = false;
   controller.handle({ type: 'set-verdict', name: 'cheating', value: 'positive' });
   expect(controller.verdicts().cheating).toBe('positive');
-  expect(controller.snapshot()).toMatchObject({ confirming: true, confirmAvailable: false, decisionTick: 22531.75 });
+  expect(controller.snapshot()).toMatchObject({ confirming: true, confirmAvailable: false, decisionTick: 22531.75, decisionTime: 0 });
   controller.handle({ type: 'confirm-verdict' });
   expect(submitted).not.toHaveBeenCalled();
   await arm();

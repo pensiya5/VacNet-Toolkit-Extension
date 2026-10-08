@@ -65,10 +65,27 @@ export const installNativeDeveloperSeeking = (clip: ClipData): (() => void) => {
   };
   // Seeking straight to the end does not fire the site's end-of-media handler
   // while paused, so replay the event the portal uses to unlock its answers.
+  const replayEnded = (): void => { video.dispatchEvent(new Event('ended')); };
   const fireEnded = (): void => {
     const length = duration();
     if (!(length > 0 && video.currentTime >= length - 0.5)) return;
-    video.dispatchEvent(new Event('ended'));
+    replayEnded();
+  };
+  // A verdict must be possible as soon as playback starts. If the portal keeps
+  // its answers locked after pressing play, replay the end-of-media event.
+  let playUnlockDelay: number | null = null;
+  const answersLocked = (): boolean => {
+    const inputs = document.querySelectorAll<HTMLInputElement>('input[name="cheating"]');
+    return inputs.length > 0 && Array.from(inputs).every((input) => input.disabled);
+  };
+  const unlockAnswersOnPlay = (): void => {
+    if (playUnlockDelay !== null) window.clearTimeout(playUnlockDelay);
+    playUnlockDelay = window.setTimeout(() => {
+      playUnlockDelay = null;
+      if (!answersLocked()) return;
+      console.info('[VACNET] Playback started; replaying the end-of-media event to unlock the answers.');
+      replayEnded();
+    }, 250);
   };
   assertWatchedOverride();
   unlock();
@@ -77,16 +94,19 @@ export const installNativeDeveloperSeeking = (clip: ClipData): (() => void) => {
   video.addEventListener('seeked', reset, true);
   video.addEventListener('seeked', fireEnded, true);
   video.addEventListener('play', reset, true);
+  video.addEventListener('play', unlockAnswersOnPlay, true);
   video.addEventListener('timeupdate', record, true);
   video.addEventListener('pause', record, true);
   video.addEventListener('ended', record, true);
   return () => {
+    if (playUnlockDelay !== null) window.clearTimeout(playUnlockDelay);
     window.clearInterval(overrideTimer);
     video.removeEventListener('loadedmetadata', unlock);
     video.removeEventListener('seeking', reset, true);
     video.removeEventListener('seeked', reset, true);
     video.removeEventListener('seeked', fireEnded, true);
     video.removeEventListener('play', reset, true);
+    video.removeEventListener('play', unlockAnswersOnPlay, true);
     video.removeEventListener('timeupdate', record, true);
     video.removeEventListener('pause', record, true);
     video.removeEventListener('ended', record, true);

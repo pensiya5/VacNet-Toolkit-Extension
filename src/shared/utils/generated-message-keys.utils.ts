@@ -253,6 +253,7 @@ export const messageKeys = [
   "uploadVideoHistory",
   "uploadVideoHistoryHint",
   "verdict",
+  "verdictDecisionTime",
   "verdictTick",
   "verdictTitle",
   "verdictTrainingNotice",

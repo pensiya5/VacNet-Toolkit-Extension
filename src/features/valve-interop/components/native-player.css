@@ -9,6 +9,13 @@ body.vacnet-extension-root .videocontainer > #video.vacnet-native-player-active 
   background: transparent !important;
 }
 
+/* The site renders a translucent "press play" card over the video (twice: from
+   the server markup and from an inline script). Playback starts from the
+   regular player controls, so the card is only in the way. */
+body.vacnet-extension-root .vjs-start-message {
+  display: none !important;
+}
+
 body.vacnet-extension-root #video.vacnet-native-player-active > .vacnet-review-player-host {
   position: absolute;
   inset: 0;

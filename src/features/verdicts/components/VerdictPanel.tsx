@@ -3,7 +3,7 @@ import type { ClipData, ClipDeduplication, NativeReviewControls } from '../../..
 import { emptyVerdicts, verdictNames, verdictValues, type VerdictName, type VerdictSelection, type VerdictValue } from '../../../entities/verdict.entity';
 import type { Translate } from '../../../shared/services/i18n.service';
 import { useTranslation } from '../../../shared/components/TranslationProvider';
-import { formatMatchDate } from '../../../shared/utils/formatters.utils';
+import { formatMatchDate, formatVideoTime } from '../../../shared/utils/formatters.utils';
 import styles from './VerdictPanel.module.css';
 
 interface VerdictPanelProps {
@@ -165,7 +165,8 @@ export const VerdictPanel = ({
           {t('btnSkip')}
         </button>
       </div>}
-      {nativeReview && reviewControls?.decisionTick != null && <p class={styles.decisionTick}>{t('verdictTick')}: {reviewControls.decisionTick.toFixed(2)}</p>}
+      {nativeReview && reviewControls?.confirming && reviewControls.decisionTime != null
+        && <p class={styles.decisionTick}>{t('verdictDecisionTime')}: {formatVideoTime(reviewControls.decisionTime)}</p>}
       
       {clip && (
         <div class={previousVerdicts ? styles.infoGrid : styles.infoGridSingle}>

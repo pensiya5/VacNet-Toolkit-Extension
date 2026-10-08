@@ -927,6 +927,9 @@
   "verdictTick": {
     "message": "Тик решения"
   },
+  "verdictDecisionTime": {
+    "message": "Время решения"
+  },
   "cheatingYes": {
     "message": "Читер"
   },

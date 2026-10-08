@@ -28,7 +28,7 @@ vi.mock('../src/shared/services/i18n.service', async (importOriginal) => ({
 let root: HTMLElement;
 const catalog = { ...Object.fromEntries(messageKeys.map((key) => [key, key])), videoJsLocale: 'en',
   cheatingYes: 'cheatingYes', cheatingNo: 'cheatingNo', nativeWatchHint: 'nativeWatchHint',
-  nativeConfirmHint: 'nativeConfirmHint', verdictTick: 'Тик решения', labelCheating: 'labelCheating',
+  nativeConfirmHint: 'nativeConfirmHint', verdictDecisionTime: 'Время решения', labelCheating: 'labelCheating',
 } as unknown as MessageCatalog;
 const mount = (children: ComponentChildren) => act(() => render(h(TranslationProvider, { catalog, children }), root));
 const button = (label: string) => [...root.querySelectorAll<HTMLButtonElement>('button')].find((element) => element.textContent === label)!;
@@ -50,7 +50,7 @@ afterEach(() => { act(() => render(null, root)); root.remove(); });
 
 it('restores all toolbar preferences and the cheating panel in native reviews', () => {
   snapshotSignal.value = { ...snapshotSignal.value, reviewControls: { positiveAvailable: true, skipAvailable: false,
-    negativeAvailable: true, confirming: false, confirmAvailable: false, decisionTick: null } };
+    negativeAvailable: true, confirming: false, confirmAvailable: false, decisionTick: null, decisionTime: null } };
   const command = mountApp(true);
   for (const label of ['themeToggleTitle', 'presetPanelTitle', 'hideNickname', 'autoApplyRepeatVerdicts', 'keepControlsVisible', 'stretchVideo']) {
     expect(root.querySelector(`button[aria-label="${label}"]`)).not.toBeNull();
@@ -67,11 +67,11 @@ it('restores all toolbar preferences and the cheating panel in native reviews', 
 it('uses explicit confirm and cancel commands and exposes the decision tick', () => {
   snapshotSignal.value = { ...snapshotSignal.value, verdicts: { ...emptyVerdicts(), cheating: 'positive' },
     reviewControls: { positiveAvailable: true, skipAvailable: true, negativeAvailable: true,
-      confirming: true, confirmAvailable: true, decisionTick: 22531.75 } };
+      confirming: true, confirmAvailable: true, decisionTick: 22531.75, decisionTime: 205.4 } };
   const command = mountApp(true);
   expect(root.querySelector<HTMLInputElement>('#vacnet-cheating-positive')!.matches(':disabled')).toBe(true);
   expect(root.textContent).toContain('nativeConfirmHint');
-  expect(root.textContent).toContain('Тик решения: 22531.75');
+  expect(root.textContent).toContain('Время решения: 3:25.40');
   act(() => button('btnConfirm').click());
   expect(command).toHaveBeenLastCalledWith({ type: 'confirm-verdict' });
   act(() => button('cancel').click());
@@ -102,7 +102,7 @@ it('retains clip details and the native previous verdict and reports a bad clip'
       matchTimestamp: null, webmDuration: null },
     deduplication: 'exact-duplicate', previousVerdicts: { ...emptyVerdicts(), cheating: 'negative' },
     reviewControls: { positiveAvailable: true, skipAvailable: true, negativeAvailable: true,
-      confirming: false, confirmAvailable: false, decisionTick: null } };
+      confirming: false, confirmAvailable: false, decisionTick: null, decisionTime: null } };
   const command = mountApp(true);
   expect(root.textContent).toContain('clipDetails');
   expect(root.textContent).toContain('task-42');

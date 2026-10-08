@@ -12,14 +12,14 @@ body.vacnet-native-review .page-container {
 
 body.vacnet-native-review .review-layout {
   width: 100%;
-  max-width: 1800px;
+  max-width: 1920px;
   margin: auto;
   padding: 24px;
   gap: 20px;
   box-sizing: border-box;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 600px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
   grid-template-rows: auto;
-  align-items: start;
+  align-items: stretch;
 }
 
 body.vacnet-native-review .videocontainer {
@@ -34,12 +34,19 @@ body.vacnet-native-review .verdict-column {
   overflow: visible;
   padding: 0;
   background: transparent;
+  align-self: stretch;
 }
 
 body.vacnet-native-review .task-instructions,
 body.vacnet-native-review .task-guidelines,
 body.vacnet-native-review .task-title {
   display: none;
+}
+
+/* The panel header counter duplicates the count already shown at the
+   bottom of the extension's verdict panel. */
+body.vacnet-native-review .panel-header .panel-clipcount {
+  display: none !important;
 }
 
 /* The native button's arming animation must run to enable confirmation.

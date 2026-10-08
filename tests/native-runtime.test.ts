@@ -74,7 +74,7 @@ it.each([
   expect(timers.markPlayerReplacement).not.toHaveBeenCalled();
   expect(bus.saveHistory).not.toHaveBeenCalled();
   const snapshot = events.filter((event) => event.type === 'snapshot').at(-1)!;
-  expect(snapshot.snapshot).toMatchObject({ hasVideo: true, error: null, player: { id: 'video_html5_api', version: '3.8.4' } });
+  expect(snapshot.snapshot).toMatchObject({ hasVideo: true, error: null, player: { id: 'video_html5_api', version: '3.8.5' } });
   delete window.SubmitLabels;
 });
 

@@ -31,10 +31,14 @@ export class NativeReviewController {
     const button = this.root.querySelector<HTMLButtonElement>('#submitVerdictButton');
     const rawTick = this.root.querySelector<HTMLInputElement>('#form_verdict_tick')?.value.trim();
     const tick = rawTick ? Number(rawTick) : null;
+    const video = this.root.querySelector<HTMLVideoElement>('#video_html5_api, #video video');
+    const decisionTime = confirming && video && Number.isFinite(video.currentTime) && video.currentTime >= 0
+      ? video.currentTime : null;
     return {
       positiveAvailable: this.available('positive'), skipAvailable: this.available('skip'), negativeAvailable: this.available('negative'),
       confirming, confirmAvailable: confirming && !!button && !button.disabled && !this.isSubmitting,
       decisionTick: tick !== null && Number.isFinite(tick) && tick >= 0 ? tick : null,
+      decisionTime,
     };
   }
 

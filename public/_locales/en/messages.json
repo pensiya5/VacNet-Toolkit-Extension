@@ -927,6 +927,9 @@
   "verdictTick": {
     "message": "Decision tick"
   },
+  "verdictDecisionTime": {
+    "message": "Decision time"
+  },
   "cheatingYes": {
     "message": "Cheating"
   },

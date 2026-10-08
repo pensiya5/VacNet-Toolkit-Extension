@@ -120,8 +120,13 @@ body.vacnet-extension-root .video-column {
 
 body.vacnet-extension-root .video-column .top-section,
 body.vacnet-extension-root .verdict-column .top-section-logo,
-body.vacnet-extension-root .verdict-column .verdicts-container,
-body.vacnet-extension-root .ClipCount {
+body.vacnet-extension-root .verdict-column .verdicts-container {
+  display: none !important;
+}
+
+/* The header counter stays in the DOM (clip parsing and transitions read it),
+   but the panel at the bottom already shows the same count. */
+body.vacnet-native-review .PageHeader .ClipCount {
   display: none !important;
 }
 
